@@ -1,0 +1,119 @@
+<!DOCTYPE>
+
+<html>
+
+	<head>
+	
+		<meta charset = "utf-8">
+		
+		<title>wave visualizer</title>
+		
+		<style>
+		
+			#wave {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 500px;
+				height: 500px;
+				margin-top: -250px;
+				margin-left: -250px;
+			}
+		
+		</style>
+		
+	</head>
+	
+	<body>
+	
+		<canvas id = "wave" width = "500" height = "500"></canvas>
+	
+	</body>
+	
+	<script src = "violin.js"></script>
+	
+	<script src = "piano.js"></script>
+	
+	<script src = "test.js"></script>
+	
+	<script>
+		
+		// precision
+		
+		var precision = 1000;
+		
+		// wave
+		
+		var wave = {
+			canvas: document.getElementById("wave"),
+			canvas_width: 500,
+			canvas_height: 500,
+		}
+		
+		function draw_wave (template) {
+			
+			var length = 8;
+			
+			// data
+			
+			var data = [];
+			
+			for (var i = 0; i < precision; i++) {
+				
+				var sum = 0;
+				
+				for (var j = 0; j < template.amp.length; j++) {
+					
+					sum += template.amp[j] * Math.sin(template.freq[j] * Math.PI * length * i / (precision - 1) + template.delay[j] * 2 * Math.PI);
+					
+				}
+				
+				data.push(sum);
+				
+			}
+			
+			// draw wave
+			
+//			data = [];
+			
+			var brush = wave.canvas.getContext("2d");
+			
+			brush.clearRect(0 , 0 , wave.canvas_width , wave.canvas_height);
+			
+			brush.beginPath();
+			
+			brush.rect(0 , 0 , wave.canvas_width , wave.canvas_height);
+			
+			for (var i = 0; i < 100; i++) {
+				
+				brush.moveTo(i / (100 - 1) * wave.canvas_width , wave.canvas_height / 2);
+				
+				brush.lineTo((i + 0.5) / (100 - 1) * wave.canvas_width , wave.canvas_height / 2);
+				
+			}
+			
+			for (var i = 0; i < 101; i++) {
+				
+				brush.moveTo(0 , i / (101 - 1) * wave.canvas_height);
+				
+				brush.lineTo(3 , i / (101 - 1) * wave.canvas_height);
+				
+			}
+			
+			brush.moveTo(0 , wave.canvas_height / 2 - data[0] * 50);
+			
+			for (var i = 0; i < precision; i++) {
+				
+				brush.lineTo(wave.canvas_width * i / (precision - 1) , wave.canvas_height / 2 - data[i] * 50);
+				
+			}
+			
+			brush.stroke();
+			
+		}
+		
+		draw_wave(test_template);
+	
+	</script>
+
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE>
+
+<html>
+
+	<head>
+	
+		<meta charset="utf-8">
+		
+		<title>sound test</title>
+		
+		<style>
+		
+			wrapper {
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+		
+		</style>
+	
+	</head>
+	
+	<body>
+	
+		<wrapper id = "wrapper"></wrapper>
+	
+	</body>
+	
+	<script src = "test.js"></script>
+	
+	<script src = "piano.js"></script>
+	
+	<script src = "violin.js"></script>
+	
+	<script>
+		
+//		max_amplitude sustained_amplitude attack_duration decay_duration release_duration
+		
+		var keys_loaded = false;
+		
+		var keys = [];
+		
+		function create_sound (keybind , template , freq , max_amp , sus_amp , att_dur , dec_dur , rel_dur) {
+			
+			var key = {};
+			
+			key.loaded = false;
+			
+			key.pressed = false;
+			
+			key.keybind = keybind;
+			
+			key.template = template;
+			
+			key.max_amp = max_amp;
+			
+			key.sus_amp = sus_amp;
+			
+			key.att_dur = att_dur;
+			
+			key.dec_dur = dec_dur;
+			
+			key.rel_dur = rel_dur;
+			
+			key.context = new (window.AudioContext || window.webkitAudioContext)();
+			
+			key.soundset = [];
+			
+			for (var i = 0; i < 5; i++) {
+				
+				key.soundset[i] = {
+					sound: [],
+					is_playing: false,
+					is_current: false,
+				};
+			
+				for (var j = 0; j < template.amp.length; j++) {
+
+					key.soundset[i].sound[j] = {
+						amp: template.amp[j],
+						delay: template.delay[j],
+						vol: key.context.createGain(),
+						osc: key.context.createOscillator(),
+					}
+					
+					var sound = key.soundset[i].sound[j];
+
+					sound.vol.gain.value = 0;
+
+					sound.osc.frequency.value = freq * j;
+
+					sound.osc.connect(sound.vol).connect(key.context.destination)
+
+				}
+				
+			}
+			
+			keys[keybind] = key;
+			
+			key.play = function () {
+				
+				if (!key.loaded) {
+
+					for (var i = 0; i < key.soundset.length; i++) {
+						
+						for (var j = 1; j < key.soundset[i].sound.length; j++) {
+							
+							var sound = key.soundset[i].sound[j];
+
+							sound.osc.start(1 / sound.osc.frequency.value * sound.delay);
+							
+						}
+
+					}
+
+					key.loaded = true;
+
+				}
+
+				if (!key.pressed) {
+
+					for (var i = 0; i < key.soundset.length; i++) {
+						
+						if (key.soundset[i].is_playing) continue;
+						
+						for (var j = 1; j < key.soundset[i].sound.length; j++) {
+							
+							var sound = key.soundset[i].sound[j];
+
+							sound.vol.gain.linearRampToValueAtTime(key.max_amp * sound.amp , key.context.currentTime + key.att_dur);
+
+							sound.vol.gain.linearRampToValueAtTime(key.sus_amp * sound.amp , key.context.currentTime + key.att_dur + key.dec_dur);
+							
+						}
+						
+						key.soundset[i].is_playing = true;
+						
+						key.soundset[i].is_current = true;
+						
+						break;
+
+					}
+
+					key.pressed = true;
+
+				}
+				
+			}
+			
+			key.stop = function () {
+				
+				if (key.pressed) {
+				
+					for (var i = 0; i < key.soundset.length; i++) {
+						
+						if (!key.soundset[i].is_current) continue;
+						
+						for (var j = 1; j < key.soundset[i].sound.length; j++) {
+							
+							var sound = key.soundset[i].sound[j];
+
+							sound.vol.gain.linearRampToValueAtTime(0 , key.context.currentTime + key.rel_dur);
+							
+						}
+							
+						setTimeout(function(){
+							key.soundset[i].is_playing = false;
+						} , key.rel_dur * 1000);
+						
+						key.soundset[i].is_current = false;
+						
+						break;
+						
+					}
+
+					key.pressed = false;
+
+				}
+				
+			}
+			
+		}
+		
+		var note_freqs = [220 , 246.94 , 261.63 , 293.66 , 329.63 , 349.23 , 392.00 , 440 , 493.88 , 523.25];
+		
+		for (var i = 0; i < 10; i++) {
+			
+			create_sound(i + 96 , sound_library[3] , note_freqs[i] , 0.8 , 0.6 , 0.001 , 0.2 , 0.3);
+			
+		}
+		
+		window.onkeydown = function (e) {
+			
+			if (keys[e.keyCode] == undefined) return undefined;
+			
+			// use numpad
+			
+			var key = keys[e.keyCode];
+			
+			key.play();
+			
+		}
+			
+		window.onkeyup = function (e) {
+			
+			if (keys[e.keyCode] == undefined) return undefined;
+			
+			// use numpad
+			
+			var key = keys[e.keyCode];
+			
+			key.stop();
+
+		}
+		
+		console.log("use numpad");
+		
+	</script>
+
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE>
+
+<html>
+
+	<head>
+	
+		<meta charset = "utf-8">
+		
+		<title>image process</title>
+		
+		<style>
+		
+			#wave {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 500px;
+				height: 500px;
+				margin-top: -250px;
+				margin-left: -250px;
+			}
+			
+			#sin {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 200px;
+				height: 300px;
+				margin-top: -150px;
+				margin-left: -550px;
+			}
+			
+			#cos {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 200px;
+				height: 300px;
+				margin-top: -150px;
+				margin-left: 350px;
+			}
+			
+			#sin_data {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 250px;
+				height: 20px;
+				margin-top: 160px;
+				margin-left: -575px;
+				text-align: center;
+				line-height: 20px;
+				font-family: consolas;
+			}
+			
+			#cos_data {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 250px;
+				height: 20px;
+				margin-top: 160px;
+				margin-left: 325px;
+				text-align: center;
+				line-height: 20px;
+				font-family: consolas;
+			}
+		
+		</style>
+		
+	</head>
+	
+	<body>
+	
+		<canvas id = "wave" width = "10000" height = "10000"></canvas>
+	
+	</body>
+	
+	<script>
+		
+		var canvas = document.getElementById("wave");
+		
+		var brush = canvas.getContext("2d");
+		
+		var img = new Image();
+		
+		img.onload = function () {
+			
+			var amplification = 20;
+			
+			brush.drawImage(img , 0 , 0 , 416 * amplification , 343 * amplification);
+			
+			console.log(brush.getImageData(18 , 280 , 1 , 1).data);
+			
+			var scan_area = {
+				x: 17 * amplification,
+				y: 218 * amplification, // piano = 218 violin = 100
+				width: 72 * amplification, // piano = 36
+				height: 90 * amplification, // piano = 90 violin = 84
+			}
+		
+//			brush.beginPath();
+//
+//			brush.rect(scan_area.x , scan_area.y , scan_area.width , scan_area.height);
+//			
+//			brush.lineWidth = 20;
+//
+//			brush.stroke();
+		
+			var data = [];
+
+			for (var i = 0; i < scan_area.width; i += scan_area.width / (1000 + 2)) {
+
+				for (var j = 0; j < scan_area.height; j++) {
+
+					var color = brush.getImageData(scan_area.x + i , scan_area.y + j , 1 , 1).data;
+
+					if (color[2] == 224) {
+
+						data.push(scan_area.height / 2 - j);
+
+						break;
+
+					}
+
+				}
+
+			}
+			
+			console.log(data.join(" , "));
+			
+			console.log(data.length);
+			
+		}
+		
+		img.src = "cNPjg.png";
+	
+	</script>
+
+</html>

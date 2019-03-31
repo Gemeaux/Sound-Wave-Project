@@ -1,0 +1,354 @@
+<!DOCTYPE>
+
+<html>
+
+	<head>
+	
+		<meta charset="utf-8">
+		
+		<title>sound test</title>
+		
+		<style>
+		
+			wrapper {
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+		
+		</style>
+	
+	</head>
+	
+	<body>
+	
+		<wrapper id = "wrapper">
+		
+			<canvas id = "grid"></canvas>
+		
+			<canvas id = "outline"></canvas>
+		
+			<canvas id = "pin"></canvas>
+			
+		</wrapper>
+	
+	</body>
+	
+	<script src = "test.js"></script>
+	
+	<script src = "piano.js"></script>
+	
+	<script src = "violin.js"></script>
+	
+	<script>
+		
+		// melody percussion ambient
+		
+//		var ticks = {
+//			total: 32,
+//			current: 0,
+//		};
+//		
+//		var library = {
+//			melody: [],
+//			percussion: [],
+//			ambient: [],
+//			loaded: false,
+//		};
+//	
+//		function add_melody (template , max_amp , sus_amp , att_dur , dec_dur , rel_dur) {
+//			
+//			var note_freqs = [220 , 246.94 , 261.63 , 293.66 , 329.63 , 349.23 , 392.00 , 440 , 493.88 , 523.25];
+//			
+//			var index = library.melody.length;
+//			
+//			library.melody[index] = {
+//				template: template,
+//				max_amp: max_amp,
+//				sus_amp: sus_amp,
+//				att_dur: att_dur,
+//				dec_dur: dec_dur,
+//				rel_dur: rel_dur,
+//			};
+//				
+//			library.melody[index].context = new window.AudioContext();
+//			
+//			library.melody[index].soundset = [];
+//			
+//			for (let i = 0; i < note_freqs.length; i++) {
+//				
+//				library.melody[index].soundset[i] = {
+//					set: [],
+//					queue: [],
+//				}
+//				
+//				for (let j = 0; j < ticks.total; j++) {
+//					
+//					library.melody[index].soundset[i].queue[j] = false;
+//					
+//				}
+//				
+//				for (let bfr = 0; bfr < 5; bfr++) {
+//					
+//					library.melody[index].soundset[i].set[bfr] = {
+//						sound: [],
+//						is_playing: false,
+//					};
+//				
+//					for (let j = 0; j < template.amp.length; j++) {
+//
+//						library.melody[index].soundset[i].set[bfr].sound[j] = {
+//							amp: template.amp[j],
+//							delay: template.delay[j],
+//							vol: library.melody[index].context.createGain(),
+//							osc: library.melody[index].context.createOscillator(),
+//						}
+//
+//						var sound = library.melody[index].soundset[i].set[bfr].sound[j];
+//
+//						sound.vol.gain.value = 0;
+//
+//						sound.osc.frequency.value = note_freqs[i] * j;
+//
+//						sound.osc.connect(sound.vol).connect(library.melody[index].context.destination);
+//
+//					}
+//					
+//				}
+//				
+//				library.melody[index].soundset[i].play = function () {
+//					
+//					for (let bfr = 1; bfr < library.melody[index].soundset[i].set.length; bfr++) {
+//						
+//						if (library.melody[index].soundset[i].set[bfr].is_playing) continue;
+//					
+//						for (let j = 1; j < library.melody[index].soundset[i].set[bfr].sound.length; j++) {
+//
+//							var sound = library.melody[index].soundset[i].set[bfr].sound[j];
+//
+//							sound.vol.gain.linearRampToValueAtTime(library.melody[index].max_amp * sound.amp , library.melody[index].context.currentTime + library.melody[index].att_dur);
+//
+//							sound.vol.gain.linearRampToValueAtTime(library.melody[index].sus_amp * sound.amp , library.melody[index].context.currentTime + library.melody[index].att_dur + library.melody[index].dec_dur);
+//
+//						}
+//						
+//						library.melody[index].soundset[i].set[bfr].is_playing = true;
+//						
+//						break;
+//						
+//					}
+//					
+//				}
+//				
+//				library.melody[index].soundset[i].stop = function () {
+//						
+//					for (let j = 1; j < library.melody[index].soundset[i].sound.length; j++) {
+//
+//						var sound = library.melody[index].soundset[i].sound[j];
+//
+//						sound.vol.gain.linearRampToValueAtTime(0 , library.melody[index].context.currentTime + library.melody[index].rel_dur);
+//
+//					}
+//					
+//					library.melody[index].soundset[i].is_playing = false;
+//					
+//				}
+//				
+//			}
+//			
+//		}
+//		
+//		add_melody(sound_library[0] , 0.8 , 0.6 , 0.001 , 0.2 , 0.3);
+//		
+//		var sound_engine = setInterval(function(){
+//			
+//			for (var i = 0; i < library.melody.length; i++) {
+//				
+//				for (var j = 0; j < library.melody[i].soundset.length; j++) {
+//					
+//					for (var k = 0; k < library.melody[i].soundset[j].queue.length; k++) {
+//						
+//						if (library.melody[i].soundset[j].is_playing) {
+//							
+//							library.melody[i].soundset[j].stop();
+//							
+//						}
+//						
+//					}
+//						
+//					if (library.melody[i].soundset[j].queue[ticks.current]) {
+//						
+//						library.melody[i].soundset[j].play();
+//
+//					}
+//					
+//				}
+//				
+//			}
+//			
+//			ticks.current = (ticks.current + 1) % ticks.total;
+//			
+//		} , 125);
+//		
+//		window.onclick = function () {
+//			
+//			if (!library.loaded) {
+//			
+//				for (var i = 0; i < library.melody.length; i++) {
+//				
+//					for (var j = 0; j < library.melody[i].soundset.length; j++) {
+//
+//						for (var k = 1; k < library.melody[i].soundset[j].sound.length; k++) {
+//							
+//							library.melody[i].soundset[j].sound[k].osc.start(1 / library.melody[i].soundset[j].sound[k].osc.frequency.value * library.melody[i].soundset[j].sound[k].delay);
+//
+//						}
+//
+//					}
+//
+//				}
+//				
+//				library.loaded = true;
+//				
+//			}
+//			
+//		}
+		
+		var sound_engine = {
+			ticks: 32,
+			current_tick: 0,
+		}
+		
+		var library = {
+			melody: [],
+			ambient: [],
+			percussion: [],
+		}
+		
+		function create_melody (template , max_amp , sus_amp , att_dur , dec_dur , rel_dur) {
+			
+			var note_freqs = [220 , 246.94 , 261.63 , 293.66 , 329.63 , 349.23 , 392.00 , 440 , 493.88 , 523.25];
+			
+			var index = library.melody.length;
+			
+			library.melody[index] = {
+				template: template,
+				max_amp: max_amp,
+				sus_amp: sus_amp,
+				att_dur: att_dur,
+				dec_dur: dec_dur,
+				rel_dur: rel_dur,
+			};
+				
+			library.melody[index].context = new window.AudioContext();
+			
+			library.melody[index].soundset = [];
+			
+			for (let freq = 0; freq < note_freqs.length; freq++) {
+				
+				library.melody[index].soundset[freq] = {
+					queue: [],
+					volume: library.melody[index].context.createGain(),
+					source: library.melody[index].context.createBufferSource(),
+				};
+				
+				for (var tick = 0; tick < sound_engine.ticks; tick++) {
+					
+					library.melody[index].soundset[freq].queue[tick] = 0;
+					
+				}
+				
+				var sample_rate = library.melody[index].context.sampleRate;
+
+				var buffer = library.melody[index].context.createBuffer(2 , sample_rate , sample_rate);
+
+				for (var channel = 0; channel < buffer.numberOfChannels; channel++) {
+
+					var buffering = buffer.getChannelData(channel);
+
+					for (var i = 0; i < buffer.length; i++) {
+
+						var buffer_value = 0;
+
+						for (var j = 0; j < template.amp.length; j++) {
+
+							var angle = (template.freq[j] * i / buffer.length + template.delay[j]) * 2 * Math.PI;
+
+							var angle = angle * note_freqs[freq];
+
+							buffer_value += template.amp[j] * Math.sin(angle);
+
+						}
+
+						buffering[i] = buffer_value;
+
+					}
+
+				}
+
+//				alert("loaded");
+
+				console.log("loaded");
+
+				library.melody[index].soundset[freq].volume.gain.value = 0;
+
+				library.melody[index].soundset[freq].source.loop = true;
+
+				library.melody[index].soundset[freq].source.buffer = buffer;
+
+				library.melody[index].soundset[freq].source.connect(library.melody[index].soundset[freq].volume);
+				
+				library.melody[index].soundset[freq].volume.connect(library.melody[index].context.destination);
+				
+				library.melody[index].soundset[freq].source.start();
+				
+				// play function
+				
+				library.melody[index].soundset[freq].play = function () {
+					
+					var current_time = library.melody[index].context.currentTime;
+					
+					var gain = library.melody[index].soundset[freq].volume.gain;
+					
+					gain.linearRampToValueAtTime(max_amp , current_time + att_dur);
+					
+					gain.linearRampToValueAtTime(sus_amp , current_time + att_dur + dec_dur);
+					
+				}
+				
+				// play function
+				
+				library.melody[index].soundset[freq].stop = function () {
+					
+					var current_time = library.melody[index].context.currentTime;
+					
+					var gain = library.melody[index].soundset[freq].volume.gain;
+					
+					gain.linearRampToValueAtTime(0 , current_time + rel_dur);
+					
+				}
+				
+			}
+			
+		}
+		
+		window.onclick = function () {
+		
+			create_melody(sound_library[0] , 0.8 , 0.6 , 0.01 , 0.2 , 0.3);
+			
+		}
+		
+		window.onkeydown = function () {
+			
+			library.melody[0].soundset[0].play();
+			
+			setTimeout(library.melody[0].soundset[0].stop() , 0.5)
+			
+		}
+		
+	</script>
+
+</html>
